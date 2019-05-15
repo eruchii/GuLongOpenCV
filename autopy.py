@@ -68,33 +68,7 @@ def single_searchimage(image, r_image, threshold=0.85):
 	# cv2.waitKey(0)
 	return max_loc
 
-def single_screenshot(r_image, count,threshold=0.85):
-	im = pyautogui.screenshot()
-	img_rgb = np.array(im)
-	img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
-	img_rgb = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2RGB)
-	template = cv2.imread(r_image,0)
-	w, h = template.shape[::-1]
-	res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
-	min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-	if max_val < threshold:
-		return (-1, -1)
-	else:
-		im = pyautogui.screenshot()
-		img_rgb = np.array(im)
-		img_rgb = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2RGB)
-		min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-		cv2.rectangle(img_rgb, max_loc, (max_loc[0] + w, max_loc[1] + h), (0,0,255), 2)
-		cv2.imwrite("./out/res"+str(count)+".png", img_rgb)
-		# scale = 0.8
-		# c, newW, newH = img_rgb.shape[::-1]
-		# newW, newH = int(newW*scale), int(newH*scale)
-		# img_rgb =  cv2.resize(img_rgb, (newW, newH))
-		# cv2.imshow("gg", img_rgb)
-		# cv2.waitKey(0)
-		return max_loc	
-
-def detect(r_image, count,threshold=0.85):
+def detect(r_image, count,threshold=0.9):
 	im = pyautogui.screenshot()
 	img_rgb = np.array(im)
 	img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
@@ -115,7 +89,7 @@ def detect(r_image, count,threshold=0.85):
 		cv2.imwrite("./out/res"+str(count)+".png", img_rgb)
 		return max_loc	
 
-def multi_searchimage(image, threshold=0.95):
+def multi_searchimage(image, threshold=0.9):
 	print(image)
 	r_lst = os.listdir("./r_img")
 	img_gray = cv2.imread(image, 0)
@@ -123,34 +97,51 @@ def multi_searchimage(image, threshold=0.95):
 
 	for ii in r_lst:
 		r_image= "./r_img/"+ii
+		# print(ii)
 		template = cv2.imread(r_image,0)
 		w, h = template.shape[::-1]
 		res = cv2.matchTemplate(img_gray, template, cv2.TM_CCOEFF_NORMED)
 		min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
 		loc = np.where( res >= threshold)
 		for pt in zip(*loc[::-1]):
-			print(ii, pt[0], pt[1])
+			print(ii,pt[0], pt[1])
 			cv2.rectangle(img_rgb, pt, (pt[0] + w, pt[1] + h), (0,0,255), 2)
 	
 	cv2.imwrite("./out/res_"+image.split("/")[-1], img_rgb)
 
 # lst = os.listdir("./img")
+# for i in range(0, len(lst)):
+# 	os.rename("./img/"+lst[i], "./img/"+str(i)+"."+lst[i].split('.')[-1])
+# lst = os.listdir("./img")	
 # r_lst = os.listdir("./r_img")
+# print(r_lst)
 # for img in lst:
 # 	multi_searchimage("./img/"+img)
 
 found = False
 count = 0
+XY = {}
+with open("realData.txt","r") as f:
+	l = f.readlines()
+	for line in l:
+		name, x, y = line.strip("\n").split(" ")
+		XY[name] = (int(x), int(y))
 while 1:
-	lst = os.listdir("./r_img")
-	x, y = detect("./r_img/TieuMa.png",count)
-	if(x != -1 and y!=-1):
-		count += 1
-	#	pyautogui.click(x = x+154, y = y+219,clicks = 2, interval = 0.5) # Khong Tuoc Lang
-		pyautogui.click(x = x+88, y = y+205,clicks = 2, interval = 0.5) #Tieu Ma gian du
-		print(x, y, count)
-		found = True
-	if(found):
-		time.sleep(5)
-	else:
-		time.sleep(1)
+	lst = os.listdir("./boss")
+	for img in lst:
+		x, y = detect("./boss/"+img,count)
+		if(x != -1 and y!=-1):
+			count += 1
+			try:
+				pyautogui.click(x = x+XY[img][0], y = y+XY[img][1],clicks = 2, interval = 0.5)
+			except KeyError:
+				pass
+			print(img, x, y, count)
+			found = True
+		if(found):
+			found = False
+			break
+	# if(found):
+	# 	time.sleep(0)
+	# else:
+	# 	time.sleep(0)
