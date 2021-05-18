@@ -1,5 +1,6 @@
 from os import remove
 from re import L
+from PIL.ImageOps import grayscale
 import pyautogui
 import cv2
 import numpy as np
