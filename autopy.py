@@ -32,7 +32,6 @@ def imagesearcharea(image, x1,y1,x2,y2, precision=0.8, im=None) :
 
 def list_searchimage(image, r_image, threshold=0.85):
 	ans = []
-	print(image)
 	img_gray = cv2.imread(image, 0)
 	img_rgb = cv2.imread(image, 1)
 	template = cv2.imread(r_image,0)
@@ -46,7 +45,6 @@ def list_searchimage(image, r_image, threshold=0.85):
 	cv2.imwrite("./out/res_"+image.split("/")[-1], img_rgb)
 
 def single_searchimage(image, r_image, threshold=0.85):
-	print(image)
 	img_gray = cv2.imread(image, 0)
 	img_rgb = cv2.imread(image, 1)
 	template = cv2.imread(r_image,0)
